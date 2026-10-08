@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.0",
+  "schema_type": "graph_data_model",
+  "project": "DASH Dog Food",
+  "purpose": "Visualize the target operating and analytical data model. This is a target schema, not a copy of example Shopify exports.",
+  "entities": [
+    {
+      "id": "dog_profile",
+      "label": "Dog Profile",
+      "category": "customer_profile",
+      "grain": "One dog per profile version",
+      "primary_key": ["dog_id", "profile_updated_at"],
+      "fields": [
+        {"name": "dog_id", "type": "string", "required": true},
+        {"name": "customer_id", "type": "string", "required": true, "pii": false},
+        {"name": "profile_updated_at", "type": "datetime", "required": true},
+        {"name": "age", "type": "integer", "required": false},
+        {"name": "weight_lb", "type": "decimal", "required": false},
+        {"name": "body_condition", "type": "string", "required": false},
+        {"name": "activity_level", "type": "string", "required": false},
+        {"name": "allergy_ingredients", "type": "array<string>", "required": false},
+        {"name": "health_issue_flag", "type": "boolean", "required": false}
+      ]
+    },
+    {
+      "id": "product_variant",
+      "label": "Product Variant",
+      "category": "master_data",
+      "grain": "One sellable SKU or variant",
+      "primary_key": ["sku"],
+      "fields": [
+        {"name": "sku", "type": "string", "required": true},
+        {"name": "product_name", "type": "string", "required": true},
+        {"name": "product_type", "type": "string", "required": true},
+        {"name": "recipe_or_protein", "type": "string", "required": false},
+        {"name": "pack_size_lb", "type": "decimal", "required": false},
+        {"name": "is_trial", "type": "boolean", "required": true},
+        {"name": "is_add_on", "type": "boolean", "required": true},
+        {"name": "standard_price", "type": "decimal", "required": true},
+        {"name": "standard_cost", "type": "decimal", "required": false},
+        {"name": "shelf_life_days", "type": "integer", "required": false},
+        {"name": "storage_requirement", "type": "string", "required": false}
+      ]
+    },
+    {
+      "id": "order_line",
+      "label": "Order Line",
+      "category": "commercial_fact",
+      "grain": "One product line in one order",
+      "primary_key": ["order_id", "line_id"],
+      "fields": [
+        {"name": "order_id", "type": "string", "required": true},
+        {"name": "line_id", "type": "string", "required": true},
+        {"name": "order_created_at", "type": "datetime", "required": true},
+        {"name": "customer_id", "type": "string", "required": true, "pii": false},
+        {"name": "dog_id", "type": "string", "required": false},
+        {"name": "sku", "type": "string", "required": true},
+        {"name": "quantity", "type": "integer", "required": true},
+        {"name": "gross_sales", "type": "decimal", "required": true},
+        {"name": "line_discount", "type": "decimal", "required": true},
+        {"name": "net_sales", "type": "decimal", "required": true},
+        {"name": "financial_status", "type": "string", "required": true},
+        {"name": "fulfillment_status", "type": "string", "required": true},
+        {"name": "location_id", "type": "string", "required": false}
+      ]
+    },
+    {
+      "id": "subscription",
+      "label": "Subscription",
+      "category": "subscription_fact",
+      "grain": "One dog subscription or plan",
+      "primary_key": ["subscription_id"],
+      "fields": [
+        {"name": "subscription_id", "type": "string", "required": true},
+        {"name": "customer_id", "type": "string", "required": true, "pii": false},
+        {"name": "dog_id", "type": "string", "required": true},
+        {"name": "status", "type": "string", "required": true},
+        {"name": "next_charge_at", "type": "datetime", "required": false},
+        {"name": "delivery_frequency_days", "type": "integer", "required": true},
+        {"name": "recipe_or_plan", "type": "string", "required": true},
+        {"name": "daily_portion", "type": "decimal", "required": false},
+        {"name": "box_size", "type": "string", "required": true},
+        {"name": "base_price", "type": "decimal", "required": true},
+        {"name": "discount", "type": "decimal", "required": true}
+      ]
+    },
+    {
+      "id": "subscription_event",
+      "label": "Subscription Event",
+      "category": "subscription_fact",
+      "grain": "One subscription change event",
+      "primary_key": ["event_id"],
+      "fields": [
+        {"name": "event_id", "type": "string", "required": true},
+        {"name": "subscription_id", "type": "string", "required": true},
+        {"name": "event_at", "type": "datetime", "required": true},
+        {"name": "event_type", "type": "string", "required": true},
+        {"name": "old_value", "type": "string", "required": false},
+        {"name": "new_value", "type": "string", "required": false},
+        {"name": "effective_at", "type": "datetime", "required": false}
+      ]
+    },
+    {
+      "id": "inventory_snapshot",
+      "label": "Inventory Snapshot",
+      "category": "inventory_fact",
+      "grain": "One SKU, location, and snapshot timestamp",
+      "primary_key": ["snapshot_at", "sku", "location_id"],
+      "fields": [
+        {"name": "snapshot_at", "type": "datetime", "required": true},
+        {"name": "sku", "type": "string", "required": true},
+        {"name": "location_id", "type": "string", "required": true},
+        {"name": "on_hand", "type": "decimal", "required": true},
+        {"name": "available", "type": "decimal", "required": true},
+        {"name": "committed", "type": "decimal", "required": true},
+        {"name": "incoming", "type": "decimal", "required": true},
+        {"name": "lot_id", "type": "string", "required": false},
+        {"name": "expiry_date", "type": "date", "required": false}
+      ]
+    },
+    {
+      "id": "purchase_order_line",
+      "label": "Purchase Order Line",
+      "category": "procurement_fact",
+      "grain": "One purchase order line",
+      "primary_key": ["po_id", "po_line_id"],
+      "fields": [
+        {"name": "po_id", "type": "string", "required": true},
+        {"name": "po_line_id", "type": "string", "required": true},
+        {"name": "supplier_id", "type": "string", "required": true},
+        {"name": "po_status", "type": "string", "required": true},
+        {"name": "expected_receipt_at", "type": "date", "required": false},
+        {"name": "sku_or_material_id", "type": "string", "required": true},
+        {"name": "ordered_qty", "type": "decimal", "required": true},
+        {"name": "received_qty", "type": "decimal", "required": true},
+        {"name": "unit_cost", "type": "decimal", "required": true},
+        {"name": "minimum_order_qty", "type": "decimal", "required": false},
+        {"name": "lead_time_days", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "id": "bom_recipe",
+      "label": "BOM / Recipe",
+      "category": "production_master_data",
+      "grain": "One component per finished SKU or recipe",
+      "primary_key": ["finished_sku", "material_id", "effective_from"],
+      "fields": [
+        {"name": "finished_sku", "type": "string", "required": true},
+        {"name": "material_id", "type": "string", "required": true},
+        {"name": "qty_per_finished_unit", "type": "decimal", "required": true},
+        {"name": "uom", "type": "string", "required": true},
+        {"name": "yield_rate", "type": "decimal", "required": false},
+        {"name": "effective_from", "type": "date", "required": true},
+        {"name": "effective_to", "type": "date", "required": false}
+      ]
+    },
+    {
+      "id": "fulfillment_shipment",
+      "label": "Fulfillment Shipment",
+      "category": "fulfillment_fact",
+      "grain": "One shipment or package",
+      "primary_key": ["shipment_id"],
+      "fields": [
+        {"name": "shipment_id", "type": "string", "required": true},
+        {"name": "order_id", "type": "string", "required": true},
+        {"name": "location_id", "type": "string", "required": true},
+        {"name": "carrier", "type": "string", "required": false},
+        {"name": "service_level", "type": "string", "required": false},
+        {"name": "temperature_controlled_flag", "type": "boolean", "required": true},
+        {"name": "shipped_at", "type": "datetime", "required": false},
+        {"name": "delivered_at", "type": "datetime", "required": false},
+        {"name": "shipment_status", "type": "string", "required": true},
+        {"name": "freight_cost", "type": "decimal", "required": false},
+        {"name": "exception_type", "type": "string", "required": false}
+      ]
+    }
+  ],
+  "relationships": [
+    {"from": "dog_profile.customer_id", "to": "subscription.customer_id", "cardinality": "one_to_many", "label": "customer owns subscriptions"},
+    {"from": "dog_profile.dog_id", "to": "subscription.dog_id", "cardinality": "one_to_many", "label": "dog plan history"},
+    {"from": "subscription.subscription_id", "to": "subscription_event.subscription_id", "cardinality": "one_to_many", "label": "subscription changes"},
+    {"from": "dog_profile.dog_id", "to": "order_line.dog_id", "cardinality": "one_to_many", "label": "dog order attribution"},
+    {"from": "product_variant.sku", "to": "order_line.sku", "cardinality": "one_to_many", "label": "product sales"},
+    {"from": "product_variant.sku", "to": "inventory_snapshot.sku", "cardinality": "one_to_many", "label": "inventory by SKU"},
+    {"from": "product_variant.sku", "to": "bom_recipe.finished_sku", "cardinality": "one_to_many", "label": "finished product BOM"},
+    {"from": "order_line.order_id", "to": "fulfillment_shipment.order_id", "cardinality": "one_to_many", "label": "order fulfillment"},
+    {"from": "purchase_order_line.sku_or_material_id", "to": "bom_recipe.material_id", "cardinality": "many_to_many", "label": "material supply"}
+  ],
+  "visualization": {
+    "layout": "left_to_right",
+    "legend": {
+      "customer_profile": "blue",
+      "master_data": "gray",
+      "commercial_fact": "green",
+      "subscription_fact": "purple",
+      "inventory_fact": "orange",
+      "procurement_fact": "yellow",
+      "production_master_data": "teal",
+      "fulfillment_fact": "red"
+    }
+  },
+  "data_governance": {
+    "pii_policy": "Use anonymous IDs in operational reporting whenever possible.",
+    "snapshot_policy": "Inventory snapshots are point-in-time balances and must not be summed across dates.",
+    "demand_policy": "Keep confirmed orders, scheduled subscription demand, and statistical forecast demand separate."
+  }
+}

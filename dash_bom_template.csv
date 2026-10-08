@@ -1,0 +1,6 @@
+sku,component_id,component_name,component_type,qty_per_box,uom,safety_stock_pct
+FRESH-8LB-BEEF-CHICKEN,CHICKEN-RAW,Raw chicken,ingredient,10,kg,5
+FRESH-8LB-BEEF-CHICKEN,CARTON-10KG,10 kg shipping carton,packaging,1,each,5
+FRESH-8LB-BEEF-CHICKEN,LINER-INSULATED,Insulated liner,packaging,1,each,5
+FRESH-8LB-BEEF-CHICKEN,GEL-PACK,Gel pack,packaging,2,each,5
+FRESH-8LB-BEEF-CHICKEN,BOX-LABEL,Box label,packaging,1,each,5

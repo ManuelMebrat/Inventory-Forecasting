@@ -1,0 +1,6 @@
+component_id,supplier_id,supplier_name,supplier_sku,purchase_uom,units_per_purchase_uom,minimum_order_qty,lead_time_days,unit_price,currency,priority
+CHICKEN-RAW,SUP-CHICKEN-01,Fresh Farms,CHICKEN-BULK-125LB,lb,125,1,7,0,USD,1
+CARTON-10KG,SUP-PACK-01,PackRight,CARTON-10KG,each,100,1,14,0,USD,1
+LINER-INSULATED,SUP-PACK-01,PackRight,LINER-10KG,each,100,1,14,0,USD,1
+GEL-PACK,SUP-COLD-01,Cold Chain Supply,GEL-PACK-L,each,100,1,10,0,USD,1
+BOX-LABEL,SUP-PRINT-01,Label Works,LABEL-DASH,each,500,1,7,0,USD,1

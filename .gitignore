@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.ipynb_checkpoints/
+orders_export_1.csv
+/Checkout - DASH Dog Food.html
+/Checkout - DASH Dog Food_files/
+/Bases de proyectos/
+/.agents/
+/.claude/

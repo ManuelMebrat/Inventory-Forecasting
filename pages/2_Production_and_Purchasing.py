@@ -53,7 +53,7 @@ def build_material_plan(forecast: pd.DataFrame, bom: pd.DataFrame, suppliers: pd
     return plan
 
 
-st.title("🏭 Production & purchasing plan")
+st.title("Production & purchasing plan")
 st.caption("This page converts the current demand forecast into finished-box production targets, ingredient and packaging requirements, and supplier-specific draft purchase orders.")
 
 bom = st.session_state.get("bom", template("dash_bom_template.csv"))
@@ -71,10 +71,18 @@ horizon = st.session_state.get("planning_forecast_horizon", 30)
 forecast_end = st.session_state.get("planning_forecast_end_date")
 
 top1, top2, top3, top4 = st.columns(4)
-top1.metric(f"Production target ({horizon} days)", f"{forecast['forecast_boxes'].sum():,.0f} boxes")
-top2.metric("Ingredient lines", f"{(plan['component_type'] == 'ingredient').sum()}")
-top3.metric("Packaging lines", f"{(plan['component_type'] == 'packaging').sum()}")
-top4.metric("Unassigned materials", f"{plan['supplier_id'].isna().sum()}")
+with top1:
+    with st.container(border=True):
+        st.metric(f"Production target ({horizon} days)", f"{forecast['forecast_boxes'].sum():,.0f} boxes")
+with top2:
+    with st.container(border=True):
+        st.metric("Ingredient lines", f"{(plan['component_type'] == 'ingredient').sum()}")
+with top3:
+    with st.container(border=True):
+        st.metric("Packaging lines", f"{(plan['component_type'] == 'packaging').sum()}")
+with top4:
+    with st.container(border=True):
+        st.metric("Unassigned materials", f"{plan['supplier_id'].isna().sum()}")
 if forecast_end is not None:
     st.caption(f"Forecast demand ends {pd.Timestamp(forecast_end):%b %d, %Y}. Purchase-order receipts below are estimated from today plus supplier lead time.")
 

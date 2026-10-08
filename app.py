@@ -12,46 +12,6 @@ import streamlit as st
 
 st.set_page_config(page_title="DASH | Demand forecast", page_icon="🐕", layout="wide")
 
-st.markdown(
-    """
-    <style>
-        .stApp {
-            background:
-                radial-gradient(circle at 8% 8%, rgba(255, 239, 208, 0.85), transparent 26rem),
-                radial-gradient(circle at 92% 4%, rgba(215, 239, 229, 0.82), transparent 25rem),
-                #fbfaf6;
-        }
-        [data-testid="stSidebar"] {
-            background: rgba(246, 242, 233, 0.96);
-        }
-        [data-testid="stMetric"] {
-            background: rgba(255, 255, 255, 0.76);
-            border: 1px solid rgba(77, 106, 90, 0.12);
-            border-radius: 14px;
-            padding: 0.85rem;
-        }
-        .dash-hero {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 0.15rem;
-        }
-        .dash-dog {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-            background: #e5f1ea;
-            border-radius: 50%;
-            font-size: 1.65rem;
-        }
-        .dash-hero h1 { margin: 0; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 DATE_COLUMNS = ("order_created_at", "Created at", "created_at", "date", "Date")
 QUANTITY_COLUMNS = ("quantity", "Lineitem quantity", "Quantity", "units", "Units")
 SKU_COLUMNS = ("sku", "Lineitem sku", "SKU", "product", "Lineitem name")
@@ -149,7 +109,7 @@ def chicken_purchase_plan(
     }
 
 
-st.markdown('<div class="dash-hero"><span class="dash-dog">🐶</span><h1>DASH Demand Forecast</h1></div>', unsafe_allow_html=True)
+st.title("DASH demand forecast")
 st.caption("Upload order-line data to view actual demand, an editable 30-day forecast, and weekly units.")
 
 with st.sidebar:
@@ -207,17 +167,36 @@ growth_vs_latest = ((next_7 / latest_7) - 1) * 100 if latest_7 else 0
 
 st.caption(f"Source: **{source_label}** · {len(filtered):,} valid order lines · Historical period: {daily.date.min():%b %d, %Y} – {daily.date.max():%b %d, %Y}")
 metric1, metric2, metric3, metric4 = st.columns(4)
-metric1.metric("Historical units", f"{daily.actual_units.sum():,.0f}")
-metric2.metric("Average daily demand", f"{daily.actual_units.mean():,.1f}")
-metric3.metric(f"Next {horizon}-day forecast", f"{forecast.forecast_units.sum():,.0f}")
-metric4.metric("Next 7 days vs. latest 7", f"{growth_vs_latest:+.1f}%")
+with metric1:
+    with st.container(border=True):
+        st.metric("Historical units", f"{daily.actual_units.sum():,.0f}")
+with metric2:
+    with st.container(border=True):
+        st.metric("Average daily demand", f"{daily.actual_units.mean():,.1f}")
+with metric3:
+    with st.container(border=True):
+        st.metric(f"Next {horizon}-day forecast", f"{forecast.forecast_units.sum():,.0f}")
+with metric4:
+    with st.container(border=True):
+        st.metric("Next 7 days vs. latest 7", f"{growth_vs_latest:+.1f}%")
 
 st.subheader("Daily demand and forecast")
 actual_chart = daily.rename(columns={"actual_units": "units"}).assign(series="Actual")
 forecast_chart = forecast.rename(columns={"forecast_units": "units"}).assign(series="Forecast")
 chart_data = pd.concat([actual_chart[["date", "units", "series"]], forecast_chart[["date", "units", "series"]]])
-fig = px.line(chart_data, x="date", y="units", color="series", markers=True, color_discrete_map={"Actual": "#147D64", "Forecast": "#F09C3E"})
-fig.update_layout(height=410, xaxis_title=None, yaxis_title="Units", legend_title=None, margin=dict(l=0, r=0, t=20, b=0))
+fig = px.line(chart_data, x="date", y="units", color="series", markers=True, color_discrete_map={"Actual": "#356B52", "Forecast": "#862633"})
+fig.update_layout(
+    height=410,
+    xaxis_title=None,
+    yaxis_title="Units",
+    legend_title=None,
+    margin=dict(l=0, r=0, t=20, b=0),
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font_color="#28231F",
+    xaxis_gridcolor="#E2D3AE",
+    yaxis_gridcolor="#E2D3AE",
+)
 st.plotly_chart(fig, width="stretch")
 
 st.subheader("Chicken purchasing requirement")
@@ -226,19 +205,39 @@ st.caption(
     f"× {chicken_pct:g}% chicken. Purchase units are rounded up to avoid a shortfall."
 )
 procurement_metrics = st.columns(4)
-procurement_metrics[0].metric("Forecast food weight", f"{purchase_plan['total_food_kg']:,.0f} kg")
-procurement_metrics[1].metric("Chicken required", f"{purchase_plan['chicken_kg']:,.0f} kg")
-procurement_metrics[2].metric("Chicken required", f"{purchase_plan['chicken_lb']:,.0f} lb")
-procurement_metrics[3].metric(
-    f"{chicken_unit_lb:g}-lb chicken units to buy", f"{purchase_plan['chicken_units_rounded']:,}",
-    help=f"Exact requirement: {purchase_plan['chicken_units']:,.2f} purchase units.",
-)
+with procurement_metrics[0]:
+    with st.container(border=True):
+        st.metric("Forecast food weight", f"{purchase_plan['total_food_kg']:,.0f} kg")
+with procurement_metrics[1]:
+    with st.container(border=True):
+        st.metric("Chicken required", f"{purchase_plan['chicken_kg']:,.0f} kg")
+with procurement_metrics[2]:
+    with st.container(border=True):
+        st.metric("Chicken required", f"{purchase_plan['chicken_lb']:,.0f} lb")
+with procurement_metrics[3]:
+    with st.container(border=True):
+        st.metric(
+            f"{chicken_unit_lb:g}-lb chicken units to buy",
+            f"{purchase_plan['chicken_units_rounded']:,}",
+            help=f"Exact requirement: {purchase_plan['chicken_units']:,.2f} purchase units.",
+        )
 
 left, right = st.columns((1.05, 1))
 with left:
     st.subheader("Weekly demand")
-    weekly_fig = px.bar(weekly, x="week_start", y="weekly_units", color="period", barmode="group", color_discrete_map={"Actual": "#147D64", "Forecast": "#F09C3E"})
-    weekly_fig.update_layout(height=350, xaxis_title="Week starting", yaxis_title="Units", legend_title=None, margin=dict(l=0, r=0, t=20, b=0))
+    weekly_fig = px.bar(weekly, x="week_start", y="weekly_units", color="period", barmode="group", color_discrete_map={"Actual": "#356B52", "Forecast": "#862633"})
+    weekly_fig.update_layout(
+        height=350,
+        xaxis_title="Week starting",
+        yaxis_title="Units",
+        legend_title=None,
+        margin=dict(l=0, r=0, t=20, b=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#28231F",
+        xaxis_gridcolor="#E2D3AE",
+        yaxis_gridcolor="#E2D3AE",
+    )
     st.plotly_chart(weekly_fig, width="stretch")
 with right:
     st.subheader(f"{horizon}-day forecast")

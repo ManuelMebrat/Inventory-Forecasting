@@ -21,16 +21,20 @@ def read_upload(upload, required: set[str]) -> pd.DataFrame:
     return frame
 
 
-st.title("🧾 Recipe, packaging & supplier master data")
+st.title("Recipe, packaging & supplier master data")
 st.caption("Set the materials needed to make each finished SKU, then link each material to a supplier. These assumptions drive the production plan and draft purchase orders.")
 
 left, right = st.columns(2)
 with left:
-    bom_upload = st.file_uploader("Upload BOM CSV", type="csv", key="bom_upload")
-    st.download_button("Download BOM template", (Path(__file__).parents[1] / "dash_bom_template.csv").read_bytes(), "dash_bom_template.csv", "text/csv")
+    with st.container(border=True):
+        st.subheader("Bill of materials")
+        bom_upload = st.file_uploader("Upload BOM CSV", type="csv", key="bom_upload")
+        st.download_button("Download BOM template", (Path(__file__).parents[1] / "dash_bom_template.csv").read_bytes(), "dash_bom_template.csv", "text/csv")
 with right:
-    supplier_upload = st.file_uploader("Upload supplier CSV", type="csv", key="supplier_upload")
-    st.download_button("Download supplier template", (Path(__file__).parents[1] / "dash_supplier_template.csv").read_bytes(), "dash_supplier_template.csv", "text/csv")
+    with st.container(border=True):
+        st.subheader("Approved suppliers")
+        supplier_upload = st.file_uploader("Upload supplier CSV", type="csv", key="supplier_upload")
+        st.download_button("Download supplier template", (Path(__file__).parents[1] / "dash_supplier_template.csv").read_bytes(), "dash_supplier_template.csv", "text/csv")
 
 try:
     bom = read_upload(bom_upload, {"sku", "component_id", "component_name", "component_type", "qty_per_box", "uom"}) if bom_upload else st.session_state.get("bom", load_template("dash_bom_template.csv"))
@@ -39,22 +43,24 @@ except Exception as error:
     st.error(f"Could not use the uploaded master data: {error}")
     st.stop()
 
-st.subheader("Bill of materials (BOM)")
-st.caption("One row = one ingredient or packaging component required for one finished box. `qty_per_box` must be in the listed UOM.")
-bom_edited = st.data_editor(bom, num_rows="dynamic", hide_index=True, width="stretch", key="bom_editor", column_config={
-    "component_type": st.column_config.SelectboxColumn("Component type", options=["ingredient", "packaging"]),
-    "qty_per_box": st.column_config.NumberColumn("Quantity per box", min_value=0.0),
-    "safety_stock_pct": st.column_config.NumberColumn("Safety stock (%)", min_value=0.0, max_value=500.0),
-})
+with st.container(border=True):
+    st.subheader("Bill of materials (BOM)")
+    st.caption("One row = one ingredient or packaging component required for one finished box. `qty_per_box` must be in the listed UOM.")
+    bom_edited = st.data_editor(bom, num_rows="dynamic", hide_index=True, width="stretch", key="bom_editor", column_config={
+        "component_type": st.column_config.SelectboxColumn("Component type", options=["ingredient", "packaging"]),
+        "qty_per_box": st.column_config.NumberColumn("Quantity per box", min_value=0.0),
+        "safety_stock_pct": st.column_config.NumberColumn("Safety stock (%)", min_value=0.0, max_value=500.0),
+    })
 
-st.subheader("Approved suppliers")
-st.caption("One row = one possible supplier for a component. Lowest `priority` is selected for the draft purchase order.")
-supplier_edited = st.data_editor(suppliers, num_rows="dynamic", hide_index=True, width="stretch", key="supplier_editor", column_config={
-    "units_per_purchase_uom": st.column_config.NumberColumn("Units per purchase unit", min_value=0.0001),
-    "minimum_order_qty": st.column_config.NumberColumn("Minimum order quantity", min_value=0.0),
-    "lead_time_days": st.column_config.NumberColumn("Lead time (days)", min_value=0.0),
-    "priority": st.column_config.NumberColumn("Priority", min_value=1, step=1),
-})
+with st.container(border=True):
+    st.subheader("Approved suppliers")
+    st.caption("One row = one possible supplier for a component. Lowest `priority` is selected for the draft purchase order.")
+    supplier_edited = st.data_editor(suppliers, num_rows="dynamic", hide_index=True, width="stretch", key="supplier_editor", column_config={
+        "units_per_purchase_uom": st.column_config.NumberColumn("Units per purchase unit", min_value=0.0001),
+        "minimum_order_qty": st.column_config.NumberColumn("Minimum order quantity", min_value=0.0),
+        "lead_time_days": st.column_config.NumberColumn("Lead time (days)", min_value=0.0),
+        "priority": st.column_config.NumberColumn("Priority", min_value=1, step=1),
+    })
 
 if st.button("Save master data for planning", type="primary"):
     st.session_state["bom"] = bom_edited.copy()

@@ -1,18 +1,18 @@
-"""Turn the dashboard forecast and master data into production and purchasing plans."""
-
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 import math
 
 import pandas as pd
 import streamlit as st
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
 
 st.set_page_config(page_title="DASH | Production & purchasing", page_icon="🏭", layout="wide")
 
 
 def template(name: str) -> pd.DataFrame:
-    return pd.read_csv(Path(__file__).parents[1] / name)
+    return pd.read_csv(DATA_DIR / name)
 
 
 def numeric(frame: pd.DataFrame, column: str, default: float = 0) -> pd.Series:
@@ -30,7 +30,6 @@ def build_material_plan(forecast: pd.DataFrame, bom: pd.DataFrame, suppliers: pd
     requirements["safety_stock_pct"] = numeric(requirements, "safety_stock_pct")
     requirements["net_requirement"] = requirements["forecast_boxes"] * requirements["qty_per_box"]
     requirements["planned_requirement"] = requirements["net_requirement"] * (1 + requirements["safety_stock_pct"] / 100)
-    # A component may appear in several SKUs; consolidate compatible component/UOM rows.
     material = requirements.groupby(["component_id", "component_name", "component_type", "uom"], as_index=False).agg(
         forecast_boxes=("forecast_boxes", "sum"), net_requirement=("net_requirement", "sum"), planned_requirement=("planned_requirement", "sum")
     )

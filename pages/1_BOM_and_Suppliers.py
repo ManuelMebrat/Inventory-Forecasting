@@ -1,16 +1,16 @@
-"""Maintain the recipe/BOM and supplier master data used by the planning page."""
-
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
 
 st.set_page_config(page_title="DASH | BOM & suppliers", page_icon="🧾", layout="wide")
 
 
 def load_template(name: str) -> pd.DataFrame:
-    return pd.read_csv(Path(__file__).parents[1] / name)
+    return pd.read_csv(DATA_DIR / name)
 
 
 def read_upload(upload, required: set[str]) -> pd.DataFrame:
@@ -29,12 +29,12 @@ with left:
     with st.container(border=True):
         st.subheader("Bill of materials")
         bom_upload = st.file_uploader("Upload BOM CSV", type="csv", key="bom_upload")
-        st.download_button("Download BOM template", (Path(__file__).parents[1] / "dash_bom_template.csv").read_bytes(), "dash_bom_template.csv", "text/csv")
+        st.download_button("Download BOM template", (DATA_DIR / "dash_bom_template.csv").read_bytes(), "dash_bom_template.csv", "text/csv")
 with right:
     with st.container(border=True):
         st.subheader("Approved suppliers")
         supplier_upload = st.file_uploader("Upload supplier CSV", type="csv", key="supplier_upload")
-        st.download_button("Download supplier template", (Path(__file__).parents[1] / "dash_supplier_template.csv").read_bytes(), "dash_supplier_template.csv", "text/csv")
+        st.download_button("Download supplier template", (DATA_DIR / "dash_supplier_template.csv").read_bytes(), "dash_supplier_template.csv", "text/csv")
 
 try:
     bom = read_upload(bom_upload, {"sku", "component_id", "component_name", "component_type", "qty_per_box", "uom"}) if bom_upload else st.session_state.get("bom", load_template("dash_bom_template.csv"))

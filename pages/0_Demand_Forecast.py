@@ -160,7 +160,7 @@ with metric1:
         st.metric("Historical units", f"{daily.actual_units.sum():,.0f}")
 with metric2:
     with st.container(border=True):
-        st.metric("Historical units", f"{daily.actual_units.sum():,.0f}")
+        st.metric("Historical avg/day", f"{daily.actual_units.mean():,.1f}")
 with metric3:
     with st.container(border=True):
         st.metric(f"Next {horizon}-day forecast", f"{forecast.forecast_units.sum():,.0f}")

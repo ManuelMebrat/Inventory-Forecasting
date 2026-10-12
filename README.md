@@ -1,5 +1,6 @@
 # DASH Demand Forecast Dashboard
 
+![INVENTORY FORECASTING](https://github.com/ManuelMebrat/Inventory-Forecasting/blob/634b565cb9adc24e94068b1c70a914a2a4e79e8f/Forecasting.gif)
 ## 📦  Inventory Forecasting ## 
 Smarter Inventory Decisions, Powered by Data
 Inventory-Forecasting transforms sales and inventory data into practical insights that help businesses plan ahead with confidence. The project is designed to anticipate product demand, maintain healthier stock levels, and minimize the operational cost of both stockouts and overstocking.
